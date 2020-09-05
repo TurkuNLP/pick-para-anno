@@ -10,8 +10,23 @@
 
     <title>para-ann</title>
   </head>
+  
   <body>
     <div class="container">
+      <div class="row">
+	<div class="col-sm-3">
+	  <img src="{{url_for('static', filename='turkunlp_final.png')}}" class="img-thumbnail" alt="TurkuNLP.org">
+	</div>
+	<div class="col-sm-9">
+	  <h3>Paraphrase project: Movie subtitles</h3>
+	</div>
+      </div>
+	
+      <ol class="breadcrumb">
+	<li class="breadcrumb-item"><a href="{{app_root}}/">home</a></li>
+      </ol>
+
+      
       <ul>
 	{% for user in users %}
 	<li><a href="/ann/{{user}}">{{user}}</a></li>

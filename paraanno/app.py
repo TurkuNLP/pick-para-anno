@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import render_template, request
+from flask import render_template, request, url_for
 import os
 import glob
 from sqlitedict import SqliteDict
@@ -96,7 +96,38 @@ class Batch:
         s=json.dumps(self.data,ensure_ascii=False,indent=2,sort_keys=True)
         with open(self.batchfile,"wt") as f:
             print(s,file=f)
-        
+
+    @property
+    def get_batch_len(self):
+        batch_num = len(self.data)
+        return batch_num
+
+    @property
+    def get_anno_stats(self):
+        completed = 0
+        skipped = 0
+        left = 0
+        for pair in self.data:
+            if "annotation" in pair:
+                if "label" in pair["annotation"]:
+                    if pair["annotation"]["label"]!="x":
+                        completed += 1
+                    else:
+                        skipped += 1
+                else:
+                    left += 1
+            else:
+                left += 1
+        return (completed, skipped, left)
+    
+    @property
+    def get_update_timestamp(self):
+        timestamps = [datetime.datetime.fromisoformat(pair["annotation"]["updated"]) for pair in self.data if "annotation" in pair]
+        if not timestamps:
+            return "no updates"
+        else:
+            return max(timestamps).isoformat()
+            
 def init():
     global all_batches
     global textdbs

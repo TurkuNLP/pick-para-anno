@@ -13,6 +13,11 @@
   <body>
 
     <div class="container">
+      <ol class="breadcrumb">
+	<li class="breadcrumb-item"><a href="{{app_root}}/">home</a></li>
+	<li class="breadcrumb-item"><a href="{{app_root}}/ann/{{user}}">{{user}}</a></li>
+      </ol>
+      
     <ul class="list-group">
       {% for bname in batches %}
       <li class="list-group-item"><a href="/ann/{{user}}/{{bname}}">{{bname}}</a></li>

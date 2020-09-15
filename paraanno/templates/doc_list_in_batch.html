@@ -8,7 +8,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <title>Doc list / {{user}} / {{batchfile}}</title>
+    <title>[PICK] Doc list / {{user}} / {{batchfile}}</title>
   </head>
   <body>
 
@@ -20,11 +20,20 @@
       </ol>
 
 
-      <ul class="list-group">
-	{% for idx,timestamp,text1,text2 in pairdata %}
-	<li class="list-group-item"><a href="{{app_root}}/ann/{{user}}/{{batchfile}}/{{idx}}">{{idx}} | {{timestamp.split(".")[0].replace("T"," ")}}</a> | {{text1}}...</li>
+      {% for idx,timestamp,text1,text2 in pairdata %}
+      <div class="row">
+	<div class="col-1">
+	  <a href="{{app_root}}/ann/{{user}}/{{batchfile}}/{{idx}}">{{idx}}</a>
+	</div>
+	<div class="col-2">
+	  <a href="{{app_root}}/ann/{{user}}/{{batchfile}}/{{idx}}">{{timestamp.split(".")[0].replace("T"," ")}}</a>
+	</div>
+	<div class="col-7">
+	  {{text1[:30]}} ... {{text2[:30]}}
+	</div>
+	</div>
 	{% endfor %}
-    </ul>
+
     </div>
     
     <!-- Optional JavaScript -->

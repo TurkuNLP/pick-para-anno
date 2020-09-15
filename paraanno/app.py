@@ -98,31 +98,20 @@ class Batch:
             print(s,file=f)
 
     @property
-    def get_batch_len(self):
-        batch_num = len(self.data)
-        return batch_num
-
-    @property
     def get_anno_stats(self):
-        completed = 0
-        skipped = 0
-        left = 0
+        extracted=0
+        touched=0
         for pair in self.data:
-            if "annotation" in pair:
-                if "label" in pair["annotation"]:
-                    if pair["annotation"]["label"]!="x":
-                        completed += 1
-                    else:
-                        skipped += 1
-                else:
-                    left += 1
-            else:
-                left += 1
-        return (completed, skipped, left)
+            if "annotation" in pair and pair["annotation"]:
+                extracted+=len(pair["annotation"])
+                touched+=1
+        return (touched,extracted) #how many pairs touched, how many examples extracted total
     
-    @property
     def get_update_timestamp(self):
-        timestamps = [datetime.datetime.fromisoformat(pair["annotation"]["updated"]) for pair in self.data if "annotation" in pair]
+        timestamps=[pair.get("updated") for pair in self.data]
+        timestamps=[stamp for stamp in timestamps if stamp]
+        timestamps = [datetime.datetime.fromisoformat(stamp) for stamp in timestamps]
+        print("TS",timestamps)
         if not timestamps:
             return "no updates"
         else:
@@ -147,7 +136,8 @@ def hello_world():
 @app.route("/ann/<user>")
 def batchlist(user):
     global all_batches
-    return render_template("batch_list.html",app_root=APP_ROOT,batches=sorted(all_batches[user].keys()),user=user)
+    user_batches=sorted(all_batches[user].items())
+    return render_template("batch_list.html",app_root=APP_ROOT,batches=user_batches,user=user)
 
 @app.route("/ann/<user>/<batchfile>")
 def jobsinbatch(user,batchfile):

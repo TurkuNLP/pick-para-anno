@@ -8,7 +8,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <title>Batch list / {{user}}</title>
+    <title>[PICK] Batch list / {{user}}</title>
   </head>
   <body>
 
@@ -17,12 +17,17 @@
 	<li class="breadcrumb-item"><a href="{{app_root}}/">home</a></li>
 	<li class="breadcrumb-item"><a href="{{app_root}}/ann/{{user}}">{{user}}</a></li>
       </ol>
-      
-    <ul class="list-group">
-      {% for bname in batches %}
-      <li class="list-group-item"><a href="{{app_root}}/ann/{{user}}/{{bname}}">{{bname}}</a></li>
+
+      {% for bname,b in batches %}
+      <div class="row">
+	<div class="col-4"><a href="{{app_root}}/ann/{{user}}/{{bname}}">{{bname}}</a></div>
+	<div class="col-3">{{b.get_update_timestamp().replace("T"," ").split(".")[0]}}</div>
+	{% set touched,extracted=b.get_anno_stats %}
+	<div class="col-4">{{extracted}} pairs in {{touched}} blocks</div>
+	
+      </div>
       {% endfor %}
-    </ul>
+
     </div>
     
     <!-- Optional JavaScript -->

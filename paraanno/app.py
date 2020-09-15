@@ -8,6 +8,7 @@ import json
 import datetime
 import difflib
 import html
+import hashlib
 
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -160,7 +161,9 @@ def jobsinbatch(user,batchfile):
         text1=textdbs[src1][f1]
         text2=textdbs[src2][f2]
         pairdata.append((idx,pair.get("updated","not updated"),text1[:100],text2[:100]))
-    random.seed(0)
+    h=hashlib.sha256((batchfile).encode("utf-8")).digest()[:2] #first two bytes of the digest will do
+    seed=int.from_bytes(h,"little")
+    random.seed(seed) #guarantees stable order for this batch across users
     random.shuffle(pairdata)
     return render_template("doc_list_in_batch.html",app_root=APP_ROOT,user=user,batchfile=batchfile,pairdata=pairdata)
 

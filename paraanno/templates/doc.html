@@ -52,11 +52,11 @@
       
       <div class="row">
 	<div class="col-6 p-3 border" style="height:50vh;max-height:50vh;overflow-y:scroll;" id="text-left">
-	  {% for txt, spanclass in left_spandata %}<span class="matchspan" mlen="{{spanclass}}">{{txt | replace('\n', '<br/><br/>')|safe}}</span>{% endfor %}
+	  {% for txt, spanclass in left_spandata %}<span class="matchspan" id="lspan{{loop.index}}" mlen="{{spanclass}}">{{txt | replace('\n', '<br/><br/>')|safe}}</span>{% endfor %}
 	</div>
 	
 	<div class="col-6 p-3 border" style="height:50vh;max-height:50vh;overflow-y:scroll;" id="text-right">
-	  {% for txt, spanclass in right_spandata %}<span class="matchspan" mlen="{{spanclass}}">{{txt| replace('\n', '<br/><br/>')|safe}}</span>{% endfor %}
+	  {% for txt, spanclass in right_spandata %}<span class="matchspan" id="rspan{{loop.index}}" mlen="{{spanclass}}">{{txt| replace('\n', '<br/><br/>')|safe}}</span>{% endfor %}
 	</div>
 
       </div> <!-- row-->
@@ -64,6 +64,7 @@
       <div class="row border mt-3">
 	<div class="col-6 border">
 	  <textarea class="editdirty" style="width:100%;" id="text-left-inp"></textarea>
+	  <span id="text-left-foc"></span>
 	</div>
 	<div class="col-6 border">
 	  <textarea class="editdirty" style="width:100%;" id="text-right-inp"></textarea>
@@ -87,7 +88,7 @@
 	  {% for ann in annotation %}
 	  <div class="row border oneann">
 	    <div class="col-1">
-	      <a href="#" class="killann"> <span class="fa fa-trash-o" /> </a>
+	      <a href="#" class="killann"> <span class="fa fa-trash-o" /></a>{% if ann.focusid_left %}<a href="#" class="focuspair" focusid-left="{{ann.focusid_left}}" focusid-right="{{ann.focusid_right}}" ><span class="fa fa-hand-pointer-o" /></a>{% endif %}
 	    </div>
            
 	    <div class="col-11">
@@ -128,9 +129,12 @@
       function get_all_data() {
 	  var anns=[];
 	  $.each($(".oneann"), function (i,e) {
-	      anns.push({"txt":$(".anntext",$(this)).val()});
+	      elem_a=$(".anntext",$(this));
+	      elem_f=$(".focuspair",$(this));
+	      anns.push({"txt":elem_a.val(),"focusid_left":elem_f.attr("focusid-left"), "focusid_right":elem_f.attr("focusid-right")});
 	  }
 		);
+	  console.log(anns);
 	  return anns;
       }
 
@@ -162,25 +166,34 @@
       
       function make_new_pair() {
 	  elem=`
-          <div class="row border oneann">
-	    <div class="col-1">
-	      <a href="#" class="killann"> <span class="fa fa-trash-o" /> </a>
-	    </div>
-           
-	    <div class="col-11">
-	      <textarea class="anntext" style="width:100%;"></textarea>
-	    </div>
-	  </div>`
+<div class="row border oneann">
+<div class="col-1">
+<a href="#" class="killann"><span class="fa fa-trash-o" /></a><a href="#" class="focuspair" focusid-left="_" focusid-right="_" ><span class="fa fa-hand-pointer-o" /></a></div>
+<div class="col-11"><textarea class="anntext" style="width:100%;"></textarea></div>
+</div>`
 	  t1=$.trim($("#text-left-inp").val());
 	  t2=$.trim($("#text-right-inp").val());
 	  if (t1=="" || t2=="") return;
 	  e=$(elem).prependTo($("#annotations"));
 	  $(".anntext",$(e)).val(t1+"\n"+t2);
+	  $(".focuspair",$(e)).attr("focusid-left",$("#text-left-inp").attr("focusid"));
+	  $(".focuspair",$(e)).attr("focusid-right",$("#text-right-inp").attr("focusid"));
+	  
 	  $("#text-left-inp").val("");
 	  $("#text-right-inp").val("");
 	  dirty();
       }
 
+
+      function focuspair() {
+	  lid=$(this).attr("focusid-left");
+	  rid=$(this).attr("focusid-right");
+	  console.log(lid);
+	  console.log(rid);
+	  document.getElementById(lid).scrollIntoView();
+	  document.getElementById(rid).scrollIntoView();
+      }
+	  
       
       function kill_ann() {
 	  $(this).parent().parent().remove();
@@ -188,11 +201,12 @@
       }
 
       function copy_sel() {
-	  var targetid="#"+$(this).attr("id")+"-inp";
-	  console.log(targetid);
-	  console.log($(targetid));
-	  var text = window.getSelection().toString().replace(/[\r\n]+/g," ");
-	  $(targetid).val(text);//$(this).val());
+	  var srcid="#"+$(this).attr("id");
+	  selection=window.getSelection();
+	  focusid=selection.anchorNode.parentElement.id;
+	  text = selection.toString().replace(/[\r\n]+/g," ");
+	  $(srcid+"-inp").val(text);//$(this).val());
+	  $(srcid+"-inp").attr("focusid",focusid);//store the focus here
       }
 
       $(document).ready(
@@ -210,6 +224,7 @@
 
       $(document).on("click",".killann", kill_ann);
       $(document).on("input",".editdirty",dirty);
+      $(document).on("click",".focuspair",focuspair);
 
       </script>
 

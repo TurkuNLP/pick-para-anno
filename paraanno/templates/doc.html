@@ -51,11 +51,11 @@
       </div>
       
       <div class="row">
-	<div class="col-6 p-1 border" style="height:50vh;max-height:50vh;overflow-y:scroll;" id="text-left">
+	<div class="col-6 p-3 border" style="height:50vh;max-height:50vh;overflow-y:scroll;" id="text-left">
 	  {% for txt, spanclass in left_spandata %}<span class="matchspan" mlen="{{spanclass}}">{{txt | replace('\n', '<br/><br/>')|safe}}</span>{% endfor %}
 	</div>
 	
-	<div class="col-6 p-1 border" style="height:50vh;max-height:50vh;overflow-y:scroll;" id="text-right">
+	<div class="col-6 p-3 border" style="height:50vh;max-height:50vh;overflow-y:scroll;" id="text-right">
 	  {% for txt, spanclass in right_spandata %}<span class="matchspan" mlen="{{spanclass}}">{{txt| replace('\n', '<br/><br/>')|safe}}</span>{% endfor %}
 	</div>
 
@@ -138,7 +138,7 @@
 	  var all_data=get_all_data();
 	  var docpairpath = localStorage.getItem('docpairpath');
 	  $.ajax({type: 'POST',
-		  url: "/saveann/"+docpairpath,
+		  url: "{{app_root}}/saveann/"+docpairpath,
 		  data: JSON.stringify(all_data),
 		  contentType: 'application/json',
 		  error: function () { $("#save").css("background-color","red"); },

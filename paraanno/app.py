@@ -1,3 +1,4 @@
+import random
 from flask import Flask
 from flask import render_template, request, url_for
 import os
@@ -70,11 +71,8 @@ def build_spans(s,blocks):
         spandata[-1][0].append(c)
     merged_spans=[(html.escape("".join(chars)),matched_len) for chars,matched_len in spandata]
     return merged_spans, min(matched_indices),max(matched_indices) #min is actually always 0, but it's here for future need
-    
-    
 
 #matches("Minulla on koira mutta sinulla on kissa.","Sinulla on kissa ja minulla on koira.")
-
 
 def read_batches():
     batchdict={} #user -> batchfile -> Batch
@@ -162,6 +160,8 @@ def jobsinbatch(user,batchfile):
         text1=textdbs[src1][f1]
         text2=textdbs[src2][f2]
         pairdata.append((idx,pair.get("updated","not updated"),text1[:100],text2[:100]))
+    random.seed(0)
+    random.shuffle(pairdata)
     return render_template("doc_list_in_batch.html",app_root=APP_ROOT,user=user,batchfile=batchfile,pairdata=pairdata)
 
 @app.route("/saveann/<user>/<batchfile>/<pairseq>",methods=["POST"])

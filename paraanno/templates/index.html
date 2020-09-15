@@ -18,7 +18,7 @@
 	  <img src="{{url_for('static', filename='turkunlp_final.png')}}" class="img-thumbnail" alt="TurkuNLP.org">
 	</div>
 	<div class="col-sm-9">
-	  <h3>Paraphrase project: Movie subtitles</h3>
+	  <h3>Paraphrase project</h3>
 	</div>
       </div>
 	
@@ -29,7 +29,7 @@
       
       <ul>
 	{% for user in users %}
-	<li><a href="/ann/{{user}}">{{user}}</a></li>
+	<li><a href="{{app_root}}/ann/{{user}}">{{user}}</a></li>
 	{% endfor %}
       </ul>
     </div>

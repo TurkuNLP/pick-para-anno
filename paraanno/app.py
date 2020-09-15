@@ -12,6 +12,7 @@ app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 DATADIR=os.environ["PARAANN_DATA"]
+APP_ROOT=os.environ.get("PICK_PARA_ROOT","")
 
 def matches(s1,s2,minlen=5):
     m=difflib.SequenceMatcher(None,s1,s2,autojunk=False)
@@ -142,12 +143,12 @@ init()
 @app.route('/')
 def hello_world():
     global all_batches
-    return render_template("index.html",users=sorted(all_batches.keys()))
+    return render_template("index.html",app_root=APP_ROOT,users=sorted(all_batches.keys()))
 
 @app.route("/ann/<user>")
 def batchlist(user):
     global all_batches
-    return render_template("batch_list.html",batches=sorted(all_batches[user].keys()),user=user)
+    return render_template("batch_list.html",app_root=APP_ROOT,batches=sorted(all_batches[user].keys()),user=user)
 
 @app.route("/ann/<user>/<batchfile>")
 def jobsinbatch(user,batchfile):
@@ -161,7 +162,7 @@ def jobsinbatch(user,batchfile):
         text1=textdbs[src1][f1]
         text2=textdbs[src2][f2]
         pairdata.append((idx,pair.get("updated","not updated"),text1[:100],text2[:100]))
-    return render_template("doc_list_in_batch.html",user=user,batchfile=batchfile,pairdata=pairdata)
+    return render_template("doc_list_in_batch.html",app_root=APP_ROOT,user=user,batchfile=batchfile,pairdata=pairdata)
 
 @app.route("/saveann/<user>/<batchfile>/<pairseq>",methods=["POST"])
 def save_document(user,batchfile,pairseq):
@@ -205,5 +206,5 @@ def fetch_document(user,batchfile,pairseq):
     
     annotation=pair.get("annotation",[])
     
-    return render_template("doc.html",left_text=text1,right_text=text2,left_spandata=spandata1,right_spandata=spandata2,pairseq=pairseq,batchfile=batchfile,user=user,annotation=annotation,min_mlen=min(min1,min2),max_mlen=max(max1,max2)+1,mlenv=min(max(max1,max2),30),is_last=(pairseq==len(all_batches[user][batchfile].data)-1))
+    return render_template("doc.html",app_root=APP_ROOT,left_text=text1,right_text=text2,left_spandata=spandata1,right_spandata=spandata2,pairseq=pairseq,batchfile=batchfile,user=user,annotation=annotation,min_mlen=min(min1,min2),max_mlen=max(max1,max2)+1,mlenv=min(max(max1,max2),30),is_last=(pairseq==len(all_batches[user][batchfile].data)-1))
 

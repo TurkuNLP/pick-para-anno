@@ -111,7 +111,7 @@
 
     <script>
 
-      localStorage.setItem('docpairpath', '{{user}}/{{batchfile}}/{{pairseq}}');
+      var docpairpath_glob='{{user}}/{{batchfile}}/{{pairseq}}';
 
       function dirty() {
 	  $("#prevdoc").addClass("disabled");
@@ -140,7 +140,7 @@
 
       function save_data() {
 	  var all_data=get_all_data();
-	  var docpairpath = localStorage.getItem('docpairpath');
+	  var docpairpath = docpairpath_glob;
 	  $.ajax({type: 'POST',
 		  url: "{{app_root}}/saveann/"+docpairpath,
 		  data: JSON.stringify(all_data),

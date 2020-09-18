@@ -9,6 +9,7 @@ import datetime
 import difflib
 import html
 import hashlib
+import re
 
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -192,6 +193,10 @@ def fetch_document(user,batchfile,pairseq):
     text1=textdbs[src1][f1]
     text2=textdbs[src2][f2]
 
+    text1=re.sub(r"\n+","\n",text1)
+    text2=re.sub(r"\n+","\n",text2)
+    
+    
     blocks=matches(text1,text2,15) #matches are (idx1,idx2,len)
     spandata1,min1,max1=build_spans(text1,list((b[0],b[2]) for b in blocks))
     spandata2,min2,max2=build_spans(text2,list((b[1],b[2]) for b in blocks))

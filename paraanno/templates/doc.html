@@ -152,7 +152,6 @@
 	      anns.push({"txt":elem_a.val(),"focusid_left":elem_f.attr("focusid-left"), "focusid_right":elem_f.attr("focusid-right")});
 	  }
 		);
-	  console.log(anns);
 	  return anns;
       }
 
@@ -206,8 +205,6 @@
       function focuspair() {
 	  lid=$(this).attr("focusid-left");
 	  rid=$(this).attr("focusid-right");
-	  console.log(lid);
-	  console.log(rid);
 	  document.getElementById(lid).scrollIntoView();
 	  document.getElementById(rid).scrollIntoView();
       }
@@ -221,13 +218,10 @@
       function copy_sel() {
 	  var srcid="#"+$(this).attr("id");
 	  selection=window.getSelection();
-	  console.log(selection);
-	  console.log([].indexOf.call(selection.anchorNode.parentNode.children, $(this)));
 	  focusid=selection.anchorNode.parentElement.id;
 	  text = selection.toString().replace(/[\r\n]+/g," ");
 	  $(srcid+"-inp").val(text);//$(this).val());
 	  $(srcid+"-inp").attr("focusid",focusid);//store the focus here
-	  $(srcid+"-inp").attr("origselection",text);//store the focus here
       }
 
       $(document).ready(

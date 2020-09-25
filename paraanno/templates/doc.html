@@ -11,7 +11,7 @@
     <title>Para-anno</title>
 
     <style>
-      span.matched {color:darkgrey};
+      .matched {color:darkgrey};
     </style>
     
   </head>
@@ -52,11 +52,29 @@
       
       <div class="row">
 	<div class="col-6 p-3 border" style="height:50vh;max-height:50vh;overflow-y:scroll;" id="text-left">
-	  {% for txt, spanclass in left_spandata %}<span class="matchspan" id="lspan{{loop.index}}" mlen="{{spanclass}}">{{txt | replace('\n', '<br/><br/>')|safe}}</span>{% endfor %}
+	  {%- for txt, spanclass in left_spandata -%}
+	  {%- set lines=txt.split("\n") -%}
+	  {%- set currentspan=loop.index -%}
+	  <span class="matchspan" id="lspan{{loop.index}}" mlen="{{spanclass}}">
+	    {%- for l in lines -%}
+	    <span id="lspan-{{currentspan}}-{{loop.index}}">{{l}}</span>{% if not loop.last %}<br/><br/>{% endif %}
+	    {%- endfor -%}
+	  </span>
+	  {%- endfor -%}
+
+	  <!-- {% for txt, spanclass in left_spandata %}<span class="matchspan" id="lspan{{loop.index}}" mlen="{{spanclass}}">{{txt | replace('\n', '<br/><br/>')|safe}}</span>{% endfor %} -->
 	</div>
 	
 	<div class="col-6 p-3 border" style="height:50vh;max-height:50vh;overflow-y:scroll;" id="text-right">
-	  {% for txt, spanclass in right_spandata %}<span class="matchspan" id="rspan{{loop.index}}" mlen="{{spanclass}}">{{txt| replace('\n', '<br/><br/>')|safe}}</span>{% endfor %}
+	  {%- for txt, spanclass in right_spandata -%}
+	  {%- set lines=txt.split("\n") -%}
+	  {%- set currentspan=loop.index -%}
+	  <span class="matchspan" id="rspan{{loop.index}}" mlen="{{spanclass}}">
+	    {%- for l in lines -%}
+	    <span id="rspan-{{currentspan}}-{{loop.index}}">{{l}}</span>{% if not loop.last %}<br/><br/>{% endif %}
+	    {%- endfor -%}
+	  </span>
+	  {%- endfor -%}
 	</div>
 
       </div> <!-- row-->
@@ -203,10 +221,13 @@
       function copy_sel() {
 	  var srcid="#"+$(this).attr("id");
 	  selection=window.getSelection();
+	  console.log(selection);
+	  console.log([].indexOf.call(selection.anchorNode.parentNode.children, $(this)));
 	  focusid=selection.anchorNode.parentElement.id;
 	  text = selection.toString().replace(/[\r\n]+/g," ");
 	  $(srcid+"-inp").val(text);//$(this).val());
 	  $(srcid+"-inp").attr("focusid",focusid);//store the focus here
+	  $(srcid+"-inp").attr("origselection",text);//store the focus here
       }
 
       $(document).ready(

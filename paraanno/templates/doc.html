@@ -149,7 +149,7 @@
 	  $.each($(".oneann"), function (i,e) {
 	      elem_a=$(".anntext",$(this));
 	      elem_f=$(".focuspair",$(this));
-	      anns.push({"txt":elem_a.val(),"focusid_left":elem_f.attr("focusid-left"), "focusid_right":elem_f.attr("focusid-right")});
+	      anns.push({"txt":elem_a.val(),"focusid_left":elem_f.attr("focusid-left"), "focusid_right":elem_f.attr("focusid-right"), "anchorid_left":elem_f.attr("anchorid-left"), "anchorid_right":elem_f.attr("anchorid-right")});
 	  }
 		);
 	  return anns;
@@ -188,13 +188,16 @@
 <a href="#" class="killann"><span class="fa fa-trash-o" /></a><a href="#" class="focuspair" focusid-left="_" focusid-right="_" ><span class="fa fa-hand-pointer-o" /></a></div>
 <div class="col-11"><textarea class="anntext" style="width:100%;"></textarea></div>
 </div>`
-	  t1=$.trim($("#text-left-inp").val());
-	  t2=$.trim($("#text-right-inp").val());
+	  t1=$.trim($("#text-left-inp").val()).replace(/[\r\n]+/g," ");
+	  t2=$.trim($("#text-right-inp").val()).replace(/[\r\n]+/g," ");
 	  if (t1=="" || t2=="") return;
 	  e=$(elem).prependTo($("#annotations"));
 	  $(".anntext",$(e)).val(t1+"\n"+t2);
 	  $(".focuspair",$(e)).attr("focusid-left",$("#text-left-inp").attr("focusid"));
 	  $(".focuspair",$(e)).attr("focusid-right",$("#text-right-inp").attr("focusid"));
+	  $(".focuspair",$(e)).attr("anchorid-left",$("#text-left-inp").attr("anchorid"));
+	  $(".focuspair",$(e)).attr("anchorid-right",$("#text-right-inp").attr("anchorid"));
+	  
 	  
 	  $("#text-left-inp").val("");
 	  $("#text-right-inp").val("");
@@ -205,7 +208,9 @@
       function focuspair() {
 	  lid=$(this).attr("focusid-left");
 	  rid=$(this).attr("focusid-right");
-	  document.getElementById(lid).scrollIntoView();
+	  //console.log(lid);
+	  //console.log(rid);
+	  document.getElementById(lid).scrollIntoView(); // TODO focus or anchor?
 	  document.getElementById(rid).scrollIntoView();
       }
 	  
@@ -218,10 +223,31 @@
       function copy_sel() {
 	  var srcid="#"+$(this).attr("id");
 	  selection=window.getSelection();
-	  focusid=selection.anchorNode.parentElement.id;
+
+	  //Selection.anchorNode - Returns the Node in which the selection begins.
+      //Selection.focusNode - Returns the Node in which the selection ends.
+      
+	  if (selection.anchorNode.childNodes.length == 0) { // this is text node, take parent span
+	    anchorid=selection.anchorNode.parentElement.id;
+	    } else {
+	    anchorid=selection.anchorNode.id; // this is span, take it directly
+	    }
+	    
+	  if (selection.focusNode.childNodes.length == 0) {
+	    focusid=selection.focusNode.parentElement.id;
+	    } else {
+	    focusid=selection.focusNode.id;
+	    }
+	    
+	    
 	  text = selection.toString().replace(/[\r\n]+/g," ");
 	  $(srcid+"-inp").val(text);//$(this).val());
 	  $(srcid+"-inp").attr("focusid",focusid);//store the focus here
+	  $(srcid+"-inp").attr("anchorid", anchorid);
+	  
+	  //console.log(selection);
+	  //console.log(anchorid, anchor_offset, focusid, focus_offset);
+	  
       }
 
       $(document).ready(

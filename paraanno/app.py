@@ -118,6 +118,19 @@ class Batch:
         else:
             return max(timestamps).isoformat()
             
+def sort_batches(batches):
+    # batches: list of ('01427.json', <paraanno.app.Batch object at 0x7ff45e243d60>)
+    no_timestamps = []
+    with_timestamps = []
+    for b in batches:
+        if b[1].get_update_timestamp()=="no updates":
+            no_timestamps.append(b)
+        else:
+            with_timestamps.append(b)
+    no_timestamps.sort()
+    with_timestamps = sorted(with_timestamps, key=lambda x:x[1].get_update_timestamp())
+    return with_timestamps+no_timestamps
+
 def init():
     global all_batches
     global textdbs
@@ -137,7 +150,7 @@ def hello_world():
 @app.route("/ann/<user>")
 def batchlist(user):
     global all_batches
-    user_batches=sorted(all_batches[user].items())
+    user_batches=sort_batches(all_batches[user].items())
     return render_template("batch_list.html",app_root=APP_ROOT,batches=user_batches,user=user)
 
 @app.route("/ann/<user>/<batchfile>")

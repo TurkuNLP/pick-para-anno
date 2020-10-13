@@ -57,7 +57,7 @@
 	  {%- set currentspan=loop.index -%}
 	  <span class="matchspan" id="lspan{{loop.index}}" mlen="{{spanclass}}">
 	    {%- for l in lines -%}
-	    <span id="lspan-{{currentspan}}-{{loop.index}}">{{l}}</span>{% if not loop.last %}<br/><br/>{% endif %}
+	    <span id="lspan-{{currentspan}}-{{loop.index}}">{{l|safe}}</span>{% if not loop.last %}<br/><br/>{% endif %}
 	    {%- endfor -%}
 	  </span>
 	  {%- endfor -%}
@@ -71,7 +71,7 @@
 	  {%- set currentspan=loop.index -%}
 	  <span class="matchspan" id="rspan{{loop.index}}" mlen="{{spanclass}}">
 	    {%- for l in lines -%}
-	    <span id="rspan-{{currentspan}}-{{loop.index}}">{{l}}</span>{% if not loop.last %}<br/><br/>{% endif %}
+	    <span id="rspan-{{currentspan}}-{{loop.index}}">{{l|safe}}</span>{% if not loop.last %}<br/><br/>{% endif %}
 	    {%- endfor -%}
 	  </span>
 	  {%- endfor -%}

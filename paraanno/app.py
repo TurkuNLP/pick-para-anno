@@ -208,7 +208,13 @@ def fetch_document(user,batchfile,pairseq):
 
     text1=re.sub(r"\n+","\n",text1)
     text2=re.sub(r"\n+","\n",text2)
-    
+
+    text1=text1.replace("<i>"," ").replace("</i>"," ")
+    text2=text2.replace("<i>"," ").replace("</i>"," ")
+
+    text1=re.sub(r" +"," ",text1)
+    text2=re.sub(r" +"," ",text2)
+
     
     blocks=matches(text1,text2,15) #matches are (idx1,idx2,len)
     spandata1,min1,max1=build_spans(text1,list((b[0],b[2]) for b in blocks))

@@ -7,6 +7,10 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+
+
+
 
     <title>[PICK] Batch list / {{user}}</title>
   </head>
@@ -18,12 +22,18 @@
 	<li class="breadcrumb-item"><a href="{{app_root}}/ann/{{user}}">{{user}}</a></li>
       </ol>
 
-      {% for bname,b in batches %}
+      {% for bname,b,movie_name,status in batches %}
       <div class="row">
-	<div class="col-4"><a href="{{app_root}}/ann/{{user}}/{{bname}}">{{bname}}</a></div>
-	<div class="col-3">{{b.get_update_timestamp().replace("T"," ").split(".")[0]}}</div>
+
+    <div class="col-2">
+    <input id="{{bname}}" type="checkbox" data-toggle="toggle" data-size="xs" data-onstyle="success" data-offstyle="outline-success" data-on="Ready" data-off=" " onchange="save()" {{status}}>
+    </div>
+
+	<div class="col-2"><a href="{{app_root}}/ann/{{user}}/{{bname}}">{{bname}}</a></div>
+    <div class="col-3"><a href="{{app_root}}/ann/{{user}}/{{bname}}">{{movie_name}}</a></div>
+	<div class="col-2">{{b.get_update_timestamp().replace("T"," ").split(".")[0]}}</div>
 	{% set touched,extracted=b.get_anno_stats %}
-	<div class="col-4">{{extracted}} pairs in {{touched}} blocks</div>
+	<div class="col-3">{{extracted}} pairs in {{touched}} blocks</div>
 	
       </div>
       {% endfor %}
@@ -32,8 +42,29 @@
     
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+    <script>
+
+      function save() {
+        var anns={};
+        $.each($('input[type=checkbox]'), function() {
+            anns[$(this).attr("id")]=$(this).prop('checked');
+            });
+      $.ajax({type: 'POST',
+	      url: "{{app_root}}/savebatchstatus/{{user}}",
+	      data: JSON.stringify(anns),
+	      contentType: 'application/json',
+	      error: function () { alert("Saving failed, please try again after refreshing the page."); },
+	      success: function () { }
+	     }
+      );
+      }
+      
+      
+    </script>
+    
   </body>
 </html>

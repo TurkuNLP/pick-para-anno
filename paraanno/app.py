@@ -92,6 +92,10 @@ class Batch:
         self.batchfile=batchfile
         with open(batchfile) as f:
             self.data=json.load(f) #this is a list of document pairs to annotate
+            if isinstance(self.data, list):
+                # old version without movie level metadata
+                # create metadata on the fly
+                self.data = {"id": os.path.basename(batchfile), "name": "", "annotation_ready": False, "segments": self.data}
 
     def save(self):
         s=json.dumps(self.data,ensure_ascii=False,indent=2,sort_keys=True)
@@ -102,14 +106,14 @@ class Batch:
     def get_anno_stats(self):
         extracted=0
         touched=0
-        for pair in self.data:
+        for pair in self.data["segments"]:
             if "annotation" in pair and pair["annotation"]:
                 extracted+=len(pair["annotation"])
                 touched+=1
         return (touched,extracted) #how many pairs touched, how many examples extracted total
     
     def get_update_timestamp(self):
-        timestamps=[pair.get("updated") for pair in self.data]
+        timestamps=[pair.get("updated") for pair in self.data["segments"]]
         timestamps=[stamp for stamp in timestamps if stamp]
         timestamps = [datetime.datetime.fromisoformat(stamp) for stamp in timestamps]
         print("TS",timestamps)
@@ -150,14 +154,18 @@ def hello_world():
 @app.route("/ann/<user>")
 def batchlist(user):
     global all_batches
-    user_batches=sort_batches(all_batches[user].items())
+    user_batches=[]
+    for batchfile, b in sort_batches(all_batches[user].items()):
+        ann_ready = "checked" if b.data["annotation_ready"] == True else ""
+        movie_name = b.data["name"]
+        user_batches.append((batchfile, b, movie_name, ann_ready))
     return render_template("batch_list.html",app_root=APP_ROOT,batches=user_batches,user=user)
 
 @app.route("/ann/<user>/<batchfile>")
 def jobsinbatch(user,batchfile):
     global all_batches
     global textdbs
-    pairs=all_batches[user][batchfile].data
+    pairs=all_batches[user][batchfile].data["segments"]
     pairdata=[]
     for idx,pair in enumerate(pairs):
         src1,f1=pair["d1"]
@@ -176,10 +184,20 @@ def save_document(user,batchfile,pairseq):
     global all_batches
     pairseq=int(pairseq)
     annotation=request.json
-    pair=all_batches[user][batchfile].data[pairseq]
+    pair=all_batches[user][batchfile].data["segments"][pairseq]
     pair["updated"]=datetime.datetime.now().isoformat()
     pair["annotation"]=annotation
     all_batches[user][batchfile].save()
+    return "",200
+    
+@app.route("/savebatchstatus/<user>",methods=["POST"])
+def save_batchlist(user):
+    global all_batches
+    anns=request.json
+    for batchfile, status in anns.items():
+        print(batchfile, status)
+        all_batches[user][batchfile].data["annotation_ready"] = status
+        all_batches[user][batchfile].save()
     return "",200
 
 @app.route("/ann/<user>/<batchfile>/<pairseq>")
@@ -187,7 +205,7 @@ def fetch_document(user,batchfile,pairseq):
     global all_batches
     global textdbs
     pairseq=int(pairseq)
-    pair=all_batches[user][batchfile].data[pairseq]
+    pair=all_batches[user][batchfile].data["segments"][pairseq]
     
     # {
     # "d1": [
@@ -223,5 +241,5 @@ def fetch_document(user,batchfile,pairseq):
     
     annotation=pair.get("annotation",[])
     
-    return render_template("doc.html",app_root=APP_ROOT,left_text=text1,right_text=text2,left_spandata=spandata1,right_spandata=spandata2,pairseq=pairseq,batchfile=batchfile,user=user,annotation=annotation,min_mlen=min(min1,min2),max_mlen=max(max1,max2)+1,mlenv=min(max(max1,max2),30),is_last=(pairseq==len(all_batches[user][batchfile].data)-1))
+    return render_template("doc.html",app_root=APP_ROOT,left_text=text1,right_text=text2,left_spandata=spandata1,right_spandata=spandata2,pairseq=pairseq,batchfile=batchfile,user=user,annotation=annotation,min_mlen=min(min1,min2),max_mlen=max(max1,max2)+1,mlenv=min(max(max1,max2),30),is_last=(pairseq==len(all_batches[user][batchfile].data["segments"])-1))
 

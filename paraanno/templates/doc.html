@@ -227,20 +227,31 @@
 
 	  //Selection.anchorNode - Returns the Node in which the selection begins.
       //Selection.focusNode - Returns the Node in which the selection ends.
-      
 	  if (selection.anchorNode.childNodes.length == 0) { // this is text node, take parent span
-	    anchorid=selection.anchorNode.parentElement.id;
-	    } else {
-	    anchorid=selection.anchorNode.id; // this is span, take it directly
-	    }
+	      anchorid=selection.anchorNode.parentElement.id;
+	  } else {
+	      //this is the larger span node
+	      for (i=selection.anchorOffset; i<selection.anchorNode.childNodes.length; i++) {
+		  realanchor=selection.anchorNode.childNodes[i];
+		  if (realanchor.tagName=="SPAN") break;
+	      }
+	      console.log("REALANCHOR",realanchor);
+	      anchorid=realanchor.id; // this is span, take it directly
+	  }
+	  console.log("ANCHOR",anchorid);
 	    
 	  if (selection.focusNode.childNodes.length == 0) {
 	    focusid=selection.focusNode.parentElement.id;
-	    } else {
-	    focusid=selection.focusNode.id;
+	  } else {
+	      //this is the larger span node
+	      for (i=selection.focusOffset; i>=0; i--) {
+		  realfocus=selection.focusNode.childNodes[i];
+		  if (realfocus.tagName=="SPAN") break;
+	      }
+	      focusid=realfocus.id; // this is span, take it directly
 	    }
 	    
-	    
+	  console.log("FOCUS",focusid);
 	  text = selection.toString().replace(/[\r\n]+/g," ");
 	  $(srcid+"-inp").val(text);//$(this).val());
 	  $(srcid+"-inp").attr("focusid",focusid);//store the focus here

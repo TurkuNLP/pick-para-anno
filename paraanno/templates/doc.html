@@ -162,12 +162,12 @@
 		  url: "{{app_root}}/saveann/"+docpairpath,
 		  data: JSON.stringify(all_data),
 		  contentType: 'application/json',
+		  timeout: 3000,
 		  error: function () { $("#save").css("background-color","red"); },
-		  success: function () { $("#save").css("background-color","green"); }
+		  success: function () { $("#save").css("background-color","green"); clean(); }
 		 }
 	  );
 	      
-	  clean();
       }
 
       function hide_match_cutoff(n) {
@@ -202,6 +202,7 @@
 	  $("#text-left-inp").val("");
 	  $("#text-right-inp").val("");
 	  dirty();
+	  save_data();
       }
 
 

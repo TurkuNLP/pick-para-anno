@@ -140,8 +140,11 @@ def init():
     global textdbs
     all_batches=read_batches()
     textdbs={}
-    for src in SqliteDict.get_tablenames(DATADIR+"/all-texts.sqlited"):
-        textdbs[src]=SqliteDict(DATADIR+"/all-texts.sqlited",tablename=src)
+    try:
+        for src in SqliteDict.get_tablenames(DATADIR+"/all-texts.sqlited"):
+            textdbs[src]=SqliteDict(DATADIR+"/all-texts.sqlited",tablename=src)
+    except OSError: # new format 201028: text in json file
+        pass
     print(list(textdbs.keys()))
 
 init()            
@@ -170,8 +173,12 @@ def jobsinbatch(user,batchfile):
     for idx,pair in enumerate(pairs):
         src1,f1=pair["d1"]
         src2,f2=pair["d2"]
-        text1=textdbs[src1][f1]
-        text2=textdbs[src2][f2]
+        try:
+            text1=textdbs[src1][f1]
+            text2=textdbs[src2][f2]
+        except KeyError: # new format, text in json file
+            text1=all_batches[user][batchfile].data["segments"][idx]["d1_text"]
+            text2=all_batches[user][batchfile].data["segments"][idx]["d2_text"]
         pairdata.append((idx,pair.get("updated","not updated"),text1[:100],text2[:100]))
     h=hashlib.sha256((batchfile).encode("utf-8")).digest()[:2] #first two bytes of the digest will do
     seed=int.from_bytes(h,"little")
@@ -221,8 +228,12 @@ def fetch_document(user,batchfile,pairseq):
 
     src1,f1=pair["d1"]
     src2,f2=pair["d2"]
-    text1=textdbs[src1][f1]
-    text2=textdbs[src2][f2]
+    try:
+        text1=textdbs[src1][f1]
+        text2=textdbs[src2][f2]
+    except KeyError: # new format, text in json file
+        text1=all_batches[user][batchfile].data["segments"][pairseq]["d1_text"]
+        text2=all_batches[user][batchfile].data["segments"][pairseq]["d2_text"]
 
     text1=re.sub(r"\n+","\n",text1)
     text2=re.sub(r"\n+","\n",text2)

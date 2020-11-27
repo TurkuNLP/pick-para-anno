@@ -202,9 +202,10 @@ def save_batchlist(user):
     global all_batches
     anns=request.json
     for batchfile, status in anns.items():
-        print(batchfile, status)
-        all_batches[user][batchfile].data["annotation_ready"] = status
-        all_batches[user][batchfile].save()
+        if status != all_batches[user][batchfile].data["annotation_ready"]:
+            print("Saving status:",batchfile, status)
+            all_batches[user][batchfile].data["annotation_ready"] = status
+            all_batches[user][batchfile].save()
     return "",200
 
 @app.route("/ann/<user>/<batchfile>/<pairseq>")

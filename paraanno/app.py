@@ -176,7 +176,7 @@ def batchlist(user):
     user_batches=[]
     for batchfile, b in sort_batches(all_batches[user].items()):
         ann_ready = "checked" if b.data["annotation_ready"] == True else ""
-        movie_name = b.data["name"]
+        movie_name = b.data["name"].replace("\\","")
         user_batches.append((batchfile, b, movie_name, ann_ready))
     return render_template("batch_list.html",app_root=APP_ROOT,batches=user_batches,user=user)
 

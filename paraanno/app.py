@@ -152,7 +152,23 @@ init()
 @app.route('/')
 def hello_world():
     global all_batches
-    return render_template("index.html",app_root=APP_ROOT,users=sorted(all_batches.keys()))
+
+    # dict user -> (no.of ready movies, no. of not ready movies)
+    movie_stats = {}
+    for user, movies in all_batches.items():
+        ready = 0
+        not_ready = 0
+        for m in movies.values():
+            if m.data["annotation_ready"]:
+                ready += 1
+            else:
+                not_ready += 1
+        movie_stats[user] = (ready, not_ready)
+    #print(movie_stats)
+    return render_template("index.html",
+                           app_root=APP_ROOT,
+                           users=sorted(all_batches.keys()),
+                           stats=movie_stats)
 
 @app.route("/ann/<user>")
 def batchlist(user):

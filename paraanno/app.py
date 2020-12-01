@@ -159,7 +159,7 @@ def hello_world():
         ready = 0
         not_ready = 0
         for m in movies.values():
-            if m.data["annotation_ready"]:
+            if m.data["annotation_ready"] == True:
                 ready += 1
             else:
                 not_ready += 1

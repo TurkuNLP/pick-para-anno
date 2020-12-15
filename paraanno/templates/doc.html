@@ -106,7 +106,7 @@
 	  {% for ann in annotation %}
 	  <div class="row border oneann">
 	    <div class="col-1">
-	      <a href="#" class="killann"> <span class="fa fa-trash-o" /></a>{% if ann.focusid_left %}<a href="#" class="focuspair" focusid-left="{{ann.focusid_left}}" focusid-right="{{ann.focusid_right}}" ><span class="fa fa-hand-pointer-o" /></a>{% endif %}
+	      <a href="#" class="killann"> <span class="fa fa-trash-o" /></a>{% if ann.focusid_left %}<a href="#" class="focuspair" focusid-left="{{ann.focusid_left}}" focusid-right="{{ann.focusid_right}}" anchorid-left="{{ann.anchorid_left}}" anchorid-right="{{ann.anchorid_right}}" ><span class="fa fa-hand-pointer-o" /></a>{% endif %}
 	    </div>
            
 	    <div class="col-11">

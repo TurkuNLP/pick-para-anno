@@ -27,11 +27,19 @@
       </ol>
 
       
-      <ul>
-	{% for user in users %}
-	<li><a href="{{app_root}}/ann/{{user}}">{{user}}</a></li>
-	{% endfor %}
-      </ul>
+      {% for user in users %}
+      <div class="row">
+	<div class="col-4">
+	  <a href="{{app_root}}/ann/{{user}}">{{user}}</a>
+	</div>
+	<div class="col-4">
+	  {{stats[user][0]}} movies ready
+	</div>
+	<div class="col-4">
+	  {{stats[user][1]}} movies not ready
+	</div>
+      </div>
+      {% endfor %}
     </div>
       
     <!-- Optional JavaScript -->

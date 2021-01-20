@@ -106,10 +106,17 @@ class Batch:
     def get_anno_stats(self):
         extracted=0
         touched=0
-        for pair in self.data["segments"]:
-            if "annotation" in pair and pair["annotation"]:
-                extracted+=len(pair["annotation"])
-                touched+=1
+        if "_r" in self.data["id"]: # new rounds
+            for pair in self.data["segments"]:
+                # not taking into account the candidates picked in the previous rounds
+                if not pair["locked"] and "annotation" in pair and pair["annotation"]:
+                    extracted+=len(pair["annotation"])
+                    touched+=1
+        else: # old rounds
+            for pair in self.data["segments"]:
+                if "annotation" in pair and pair["annotation"]:
+                    extracted+=len(pair["annotation"])
+                    touched+=1
         return (touched,extracted) #how many pairs touched, how many examples extracted total
     
     def get_update_timestamp(self):
@@ -131,9 +138,9 @@ def sort_batches(batches):
             no_timestamps.append(b)
         else:
             with_timestamps.append(b)
-    no_timestamps.sort()
+    random.shuffle(no_timestamps) #no_timestamps.sort()
     with_timestamps = sorted(with_timestamps, key=lambda x:x[1].get_update_timestamp())
-    return with_timestamps+no_timestamps
+    return with_timestamps + no_timestamps
 
 def init():
     global all_batches
@@ -195,7 +202,11 @@ def jobsinbatch(user,batchfile):
         except KeyError: # new format, text in json file
             text1=all_batches[user][batchfile].data["segments"][idx]["d1_text"]
             text2=all_batches[user][batchfile].data["segments"][idx]["d2_text"]
-        pairdata.append((idx,pair.get("updated","not updated"),text1[:100],text2[:100]))
+        try: # new rounds
+            previous_annotator = all_batches[user][batchfile].data["segments"][idx]["annotator"]
+        except KeyError: # old rounds
+            previous_annotator = ""
+        pairdata.append((idx,pair.get("updated","not updated"),text1[:100],text2[:100], previous_annotator))
     h=hashlib.sha256((batchfile).encode("utf-8")).digest()[:2] #first two bytes of the digest will do
     seed=int.from_bytes(h,"little")
     random.seed(seed) #guarantees stable order for this batch across users
@@ -230,7 +241,10 @@ def fetch_document(user,batchfile,pairseq):
     global textdbs
     pairseq=int(pairseq)
     pair=all_batches[user][batchfile].data["segments"][pairseq]
-    
+    try:
+        locked = pair["locked"]
+    except KeyError: # old rounds
+        locked = False
     # {
     # "d1": [
     #   "hs",
@@ -269,5 +283,5 @@ def fetch_document(user,batchfile,pairseq):
     
     annotation=pair.get("annotation",[])
     
-    return render_template("doc.html",app_root=APP_ROOT,left_text=text1,right_text=text2,left_spandata=spandata1,right_spandata=spandata2,pairseq=pairseq,batchfile=batchfile,user=user,annotation=annotation,min_mlen=min(min1,min2),max_mlen=max(max1,max2)+1,mlenv=min(max(max1,max2),30),is_last=(pairseq==len(all_batches[user][batchfile].data["segments"])-1))
+    return render_template("doc.html",app_root=APP_ROOT,locked=locked,left_text=text1,right_text=text2,left_spandata=spandata1,right_spandata=spandata2,pairseq=pairseq,batchfile=batchfile,user=user,annotation=annotation,min_mlen=min(min1,min2),max_mlen=max(max1,max2)+1,mlenv=min(max(max1,max2),30),is_last=(pairseq==len(all_batches[user][batchfile].data["segments"])-1))
 

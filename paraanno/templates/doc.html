@@ -8,6 +8,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous">
+
     <title>[PICK] para-anno</title>
 
     <style>
@@ -36,7 +37,7 @@
 	  {% if not is_last %}<a tabindex="50" type="button" class="btn btn-sm btn-info" id="nextdoc" href="{{app_root}}/ann/{{user}}/{{batchfile}}/{{pairseq+1}}"><span class="fa fa-chevron-right"/></a>&nbsp;{% endif %}
 	</div>
 	<div class="col-1 p-1">
-	  <button type="button" class="btn btn-sm btn-info" id="save">Save</button>
+	  {% if not locked %} <button type="button" class="btn btn-sm btn-info" id="save">Save</button> {% else %} <button type="button" class="btn btn-sm btn-info" id="save">Locked</button> {% endif %}
 	</div>
 	<div class="col-1"></div>
 
@@ -79,6 +80,7 @@
 
       </div> <!-- row-->
 
+      {% if not locked %}
       <div class="row border mt-3">
 	<div class="col-6 border">
 	  <textarea class="editdirty" style="width:100%;" id="text-left-inp"></textarea>
@@ -98,22 +100,37 @@
 
 
       </div>
-      
+      {% endif %}
 
       <div class="row border" style="max-height:40vh;overflow-y:scroll">
 	<div class="col-12 container" id="annotations">
-
-	  {% for ann in annotation %}
-	  <div class="row border oneann">
-	    <div class="col-1">
-	      <a href="#" class="killann"> <span class="fa fa-trash-o" /></a>{% if ann.focusid_left %}<a href="#" class="focuspair" focusid-left="{{ann.focusid_left}}" focusid-right="{{ann.focusid_right}}" anchorid-left="{{ann.anchorid_left}}" anchorid-right="{{ann.anchorid_right}}" ><span class="fa fa-hand-pointer-o" /></a>{% endif %}
-	    </div>
+	  {% if not locked %}
+	    {% for ann in annotation %}
+	    <div class="row border oneann">
+	      <div class="col-1">
+	        <a href="#" class="killann"> <span class="fa fa-trash-o" /></a>{% if ann.focusid_left %}<a href="#" class="focuspair" focusid-left="{{ann.focusid_left}}" focusid-right="{{ann.focusid_right}}" anchorid-left="{{ann.anchorid_left}}" anchorid-right="{{ann.anchorid_right}}" ><span class="fa fa-hand-pointer-o" /></a>{% endif %}
+	      </div>
            
-	    <div class="col-11">
-	      <textarea class="anntext editdirty" style="width:100%;">{{ ann.txt }}</textarea>
+	      <div class="col-11">
+	        <textarea class="anntext editdirty" style="width:100%;">{{ ann.txt }}</textarea>
+	      </div>
 	    </div>
-	  </div>
-	  {% endfor %}
+	    {% endfor %}
+
+	    
+	  {% else %}
+	    {% for ann in annotation %}
+	    <div class="row border oneann">
+	      <div class="col-1">
+		{% if ann.focusid_left %}<a href="#" class="focuspair" focusid-left="{{ann.focusid_left}}" focusid-right="{{ann.focusid_right}}" anchorid-left="{{ann.anchorid_left}}" anchorid-right="{{ann.anchorid_right}}" ><span class="fa fa-hand-pointer-o" /></a>{% endif %}
+	      </div>
+           
+	      <div class="col-11">
+		<span style="white-space: pre-line">{{ ann.txt }}</span>
+	      </div>
+	    </div>
+	    {% endfor %}
+	  {% endif %}
 
 	  <!-- here go the annotations! -->
 	  

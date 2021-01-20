@@ -20,13 +20,16 @@
       </ol>
 
 
-      {% for idx,timestamp,text1,text2 in pairdata %}
+      {% for idx,timestamp,text1,text2,annotator in pairdata %}
       <div class="row">
 	<div class="col-1">
 	  <a href="{{app_root}}/ann/{{user}}/{{batchfile}}/{{idx}}">{{idx}}</a>
 	</div>
 	<div class="col-2">
 	  <a href="{{app_root}}/ann/{{user}}/{{batchfile}}/{{idx}}">{{timestamp.split(".")[0].replace("T"," ")}}</a>
+	</div>
+	<div class="col-2">
+	  {{annotator}}
 	</div>
 	<div class="col-7">
 	  {{text1[:30]}} ... {{text2[:30]}}

@@ -139,7 +139,7 @@ def sort_batches(batches):
             no_timestamps.append(b)
         else:
             with_timestamps.append(b)
-    no_timestamps = sorted(no_timestamps, key=lambda x:x.filetime)
+    no_timestamps = sorted(no_timestamps, key=lambda x:x[1].filetime)
     with_timestamps = sorted(with_timestamps, key=lambda x:x[1].get_update_timestamp())
     return with_timestamps + no_timestamps
 

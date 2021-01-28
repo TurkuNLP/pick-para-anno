@@ -96,6 +96,7 @@ class Batch:
                 # old version without movie level metadata
                 # create metadata on the fly
                 self.data = {"id": os.path.basename(batchfile), "name": "", "annotation_ready": False, "segments": self.data}
+        self.filetime = os.path.getmtime(batchfile)
 
     def save(self):
         s=json.dumps(self.data,ensure_ascii=False,indent=2,sort_keys=True)
@@ -138,7 +139,7 @@ def sort_batches(batches):
             no_timestamps.append(b)
         else:
             with_timestamps.append(b)
-    random.shuffle(no_timestamps) #no_timestamps.sort()
+    no_timestamps = sorted(no_timestamps, key=lambda x:x.filetime)
     with_timestamps = sorted(with_timestamps, key=lambda x:x[1].get_update_timestamp())
     return with_timestamps + no_timestamps
 

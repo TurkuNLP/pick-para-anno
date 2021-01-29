@@ -121,7 +121,7 @@ class Batch:
         return (touched,extracted) #how many pairs touched, how many examples extracted total
     
     def get_update_timestamp(self):
-        timestamps=[pair.get("updated") for pair in self.data["segments"]]
+        timestamps=[pair.get("updated") for pair in self.data["segments"] if "locked" in pair and not pair["locked"]]
         timestamps=[stamp for stamp in timestamps if stamp]
         timestamps = [datetime.datetime.fromisoformat(stamp) for stamp in timestamps]
         print("TS",timestamps)
@@ -129,6 +129,7 @@ class Batch:
             return "no updates"
         else:
             return max(timestamps).isoformat()
+
             
 def sort_batches(batches):
     # batches: list of ('01427.json', <paraanno.app.Batch object at 0x7ff45e243d60>)

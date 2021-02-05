@@ -180,7 +180,7 @@
 		  data: JSON.stringify(all_data),
 		  contentType: 'application/json',
 		  timeout: 3000,
-		  error: function (req,status,err) { $("#save").css("background-color","red"); console.log("Status:",status); console.log("Error":, err);},
+		  error: function (req,status,err) { $("#save").css("background-color","red"); console.log("Status:",status); console.log("Error:", err);},
 		  success: function () { $("#save").css("background-color","green"); clean(); }
 		 }
 	  );

@@ -10,38 +10,55 @@
 
     <title>[PICK] para-ann</title>
   </head>
-  
+
   <body>
     <div class="container">
       <div class="row">
 	<div class="col-sm-3">
-	  <img src="{{url_for('static', filename='turkunlp_final.png')}}" class="img-thumbnail" alt="TurkuNLP.org">
+    <img src="{{app_root}}/static/turkunlp_final.png" alt="TurkuNLP.org" class="img-thumbnail" />
+	  <!--<img src="{{url_for('static', filename='turkunlp_final.png')}}" class="img-thumbnail" alt="TurkuNLP.org"> -->
 	</div>
 	<div class="col-sm-9">
 	  <h3>Paraphrase project</h3>
 	</div>
       </div>
-	
+
       <ol class="breadcrumb">
 	<li class="breadcrumb-item"><a href="{{app_root}}/">home</a></li>
       </ol>
 
-      
+      <!-- header-->
+      <div class="row">
+	       <div class="col-4"><b>Annotator</b></div>
+         <div class="col-2" style="text-align:center;"><b>Movies</b></div>
+         <div class="col-2" style="text-align:center;"><b>Suomi24</b></div>
+         <div class="col-2" style="text-align:center;"><b>Others</b></div>
+         <div class="col-2" style="text-align:center;"><b>Total</b></div>
+      </div>
+      <div class="row">
+	       <div class="col-4"></div>
+         <div class="col-6" style="text-align:center;"></div>
+         <div class="col-1" style="text-align:center;"><b>ready</b></div>
+         <div class="col-1" style="text-align:center;"><b>not ready</b></div>
+      </div>
+
       {% for user in users %}
       <div class="row">
-	<div class="col-4">
-	  <a href="{{app_root}}/ann/{{user}}">{{user}}</a>
-	</div>
-	<div class="col-4">
-	  {{stats[user][0]}} movies ready
-	</div>
-	<div class="col-4">
-	  {{stats[user][1]}} movies not ready
-	</div>
+	       <div class="col-4">
+           <a href="{{app_root}}/ann/{{user}}">{{user}}</a>
+         </div>
+         <div class="col-1" style="text-align:center;">{{stats[user][0][0]}}</div>
+         <div class="col-1" style="text-align:center;">{{stats[user][1][0]}}</div>
+         <div class="col-1" style="text-align:center;">{{stats[user][0][1]}}</div>
+         <div class="col-1" style="text-align:center;">{{stats[user][1][1]}}</div>
+         <div class="col-1" style="text-align:center;">{{stats[user][0][2]}}</div>
+         <div class="col-1" style="text-align:center;" data-toggle="tooltip" title="{{stats[user][2]}}">{{stats[user][1][2]}}</div>
+         <div class="col-1" style="text-align:center;">{{stats[user][0][3]}}</div>
+         <div class="col-1" style="text-align:center;">{{stats[user][1][3]}}</div>
       </div>
       {% endfor %}
     </div>
-      
+
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>

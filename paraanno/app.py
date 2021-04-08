@@ -42,11 +42,11 @@ def matches_r(m,s1,s2,min_len,s1_beg,s1_end,s2_beg,s2_end):
         s1_left=s1_beg,lm.a
         s1_right=lm.a+lm.size,s1_end
         s1_all=(s1_beg,s1_end)
-        
+
         s2_left=s2_beg,lm.b
         s2_right=lm.b+lm.size,s2_end
         s2_all=(s2_beg,s2_end)
-        
+
         matches=[(lm.a,lm.b,lm.size)]
         for i1,i2 in ((s1_left,s2_left),(s1_left,s2_right),(s1_right,s2_left),(s1_right,s2_right)):
             #try all combinations of what remains
@@ -84,8 +84,8 @@ def read_batches():
         user=dirname.replace("batches-","")
         batchdict.setdefault(user,{})[fname]=Batch(b)
     return batchdict
-        
-       
+
+
 class Batch:
 
     def __init__(self,batchfile):
@@ -119,7 +119,7 @@ class Batch:
                     extracted+=len(pair["annotation"])
                     touched+=1
         return (touched,extracted) #how many pairs touched, how many examples extracted total
-    
+
     def get_update_timestamp(self):
         timestamps=[pair.get("updated") for pair in self.data["segments"] if "locked" in pair and not pair["locked"]]
         timestamps=[stamp for stamp in timestamps if stamp]
@@ -130,7 +130,7 @@ class Batch:
         else:
             return max(timestamps).isoformat()
 
-            
+
 def sort_batches(batches):
     # batches: list of ('01427.json', <paraanno.app.Batch object at 0x7ff45e243d60>)
     no_timestamps = []
@@ -156,23 +156,41 @@ def init():
         pass
     print(list(textdbs.keys()))
 
-init()            
+init()
 
 @app.route('/')
 def hello_world():
     global all_batches
+    movie_re = re.compile("^\d+(_r\d)?$")
 
     # dict user -> (no.of ready movies, no. of not ready movies)
     movie_stats = {}
     for user, movies in all_batches.items():
-        ready = 0
-        not_ready = 0
+        # [movie, suomi24, others]
+        ready = [0,0,0]
+        not_ready = [0,0,0]
+        others_not_ready = []
+
         for m in movies.values():
             if m.data["annotation_ready"] == True:
-                ready += 1
+                if re.match(movie_re, m.data["id"]):
+                    ready[0] += 1
+                elif m.data["id"].startswith("suomi24"):
+                    ready[1] += 1
+                else:
+                    ready[2] += 1
             else:
-                not_ready += 1
-        movie_stats[user] = (ready, not_ready)
+                if re.match(movie_re, m.data["id"]):
+                    not_ready[0] += 1
+                elif m.data["id"].startswith("suomi24"):
+                    not_ready[1] += 1
+                else:
+                    not_ready[2] += 1
+                    others_not_ready.append(m.data["id"])
+        ready.append(sum(ready))
+        not_ready.append(sum(not_ready))
+        others_not_ready = "\n".join(others_not_ready)
+        movie_stats[user] = (ready, not_ready, others_not_ready)
     #print(movie_stats)
     return render_template("index.html",
                            app_root=APP_ROOT,
@@ -225,7 +243,7 @@ def save_document(user,batchfile,pairseq):
     pair["annotation"]=annotation
     all_batches[user][batchfile].save()
     return "",200
-    
+
 @app.route("/savebatchstatus/<user>",methods=["POST"])
 def save_batchlist(user):
     global all_batches
@@ -277,13 +295,12 @@ def fetch_document(user,batchfile,pairseq):
     text1=re.sub(r" +"," ",text1)
     text2=re.sub(r" +"," ",text2)
 
-    
+
     blocks=matches(text1,text2,15) #matches are (idx1,idx2,len)
     spandata1,min1,max1=build_spans(text1,list((b[0],b[2]) for b in blocks))
     spandata2,min2,max2=build_spans(text2,list((b[1],b[2]) for b in blocks))
-    
-    
-    annotation=pair.get("annotation",[])
-    
-    return render_template("doc.html",app_root=APP_ROOT,locked=locked,left_text=text1,right_text=text2,left_spandata=spandata1,right_spandata=spandata2,pairseq=pairseq,batchfile=batchfile,user=user,annotation=annotation,min_mlen=min(min1,min2),max_mlen=max(max1,max2)+1,mlenv=min(max(max1,max2),30),is_last=(pairseq==len(all_batches[user][batchfile].data["segments"])-1))
 
+
+    annotation=pair.get("annotation",[])
+
+    return render_template("doc.html",app_root=APP_ROOT,locked=locked,left_text=text1,right_text=text2,left_spandata=spandata1,right_spandata=spandata2,pairseq=pairseq,batchfile=batchfile,user=user,annotation=annotation,min_mlen=min(min1,min2),max_mlen=max(max1,max2)+1,mlenv=min(max(max1,max2),30),is_last=(pairseq==len(all_batches[user][batchfile].data["segments"])-1))

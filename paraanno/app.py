@@ -1,3 +1,4 @@
+import sys
 import random
 from flask import Flask
 from flask import render_template, request, url_for
@@ -124,7 +125,7 @@ class Batch:
         timestamps=[pair.get("updated") for pair in self.data["segments"] if "locked" in pair and not pair["locked"]]
         timestamps=[stamp for stamp in timestamps if stamp]
         timestamps = [datetime.datetime.fromisoformat(stamp) for stamp in timestamps]
-        print("TS",timestamps)
+        #print("TS",timestamps)
         if not timestamps:
             return "no updates"
         else:
@@ -236,13 +237,15 @@ def jobsinbatch(user,batchfile):
 @app.route("/saveann/<user>/<batchfile>/<pairseq>",methods=["POST"])
 def save_document(user,batchfile,pairseq):
     global all_batches
+    print("GOT SAVE REQUEST", user, batchfile, file=sys.stderr, flush=True)
     pairseq=int(pairseq)
     annotation=request.json
     pair=all_batches[user][batchfile].data["segments"][pairseq]
     pair["updated"]=datetime.datetime.now().isoformat()
     pair["annotation"]=annotation
     all_batches[user][batchfile].save()
-    return "",200
+    print("DONE ANSWERING", user, batchfile, file=sys.stderr, flush=True)
+    return "[]",200
 
 @app.route("/savebatchstatus/<user>",methods=["POST"])
 def save_batchlist(user):
@@ -253,7 +256,7 @@ def save_batchlist(user):
             print("Saving status:",batchfile, status)
             all_batches[user][batchfile].data["annotation_ready"] = status
             all_batches[user][batchfile].save()
-    return "",200
+    return "[]",200
 
 @app.route("/ann/<user>/<batchfile>/<pairseq>")
 def fetch_document(user,batchfile,pairseq):

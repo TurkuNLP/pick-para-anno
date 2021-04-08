@@ -175,11 +175,12 @@
       function save_data() {
 	  var all_data=get_all_data();
 	  var docpairpath = docpairpath_glob;
+	  var stringified=JSON.stringify(all_data);
 	  $.ajax({type: 'POST',
 		  url: "{{app_root}}/saveann/"+docpairpath,
-		  data: JSON.stringify(all_data),
+		  data: stringified,
 		  contentType: 'application/json',
-		  timeout: 3000,
+		  timeout: 15000,
 		  error: function (req,status,err) { $("#save").css("background-color","red"); console.log("Status:",status); console.log("Error:", err);},
 		  success: function () { $("#save").css("background-color","green"); clean(); }
 		 }
